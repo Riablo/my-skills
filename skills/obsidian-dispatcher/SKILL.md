@@ -12,19 +12,11 @@ description: Obsidian 笔记任务调度器。当用户要求在 Obsidian 笔记
 
 ## 主进程职责（你要做的事）
 
-只做以下 4 件事，做完就等子代理汇报结果：
+只做以下 3 件事，做完就等子代理汇报结果：
 
-### 1. 确认 Obsidian 已启动
+> **任何步骤报错，立即终止任务，向用户报告具体错误信息，不再执行后续步骤。**
 
-```bash
-pgrep -x "Obsidian"
-```
-
-- **已运行**：继续下一步。
-- **未运行**：执行 `open -a Obsidian`，然后等待 10 秒（`sleep 10`），再继续。
-  原因：Obsidian 刚启动时可能还在同步数据，需要等待。
-
-### 2. 获取 Vault 路径
+### 1. 获取 Vault 路径
 
 ```bash
 uv run <skill_dir>/scripts/vault.py path
@@ -38,7 +30,7 @@ uv run <skill_dir>/scripts/vault.py init --vault-path <VAULT_PATH>
 
 配置文件位置：`~/.config/obsidian-dispatcher/config.yaml`
 
-### 3. 提取 Prompt
+### 2. 提取 Prompt
 
 从用户原话中去除定位相关的部分，保留任务描述**原样传递**。不做任何扩展、引申、改写。
 
@@ -52,7 +44,7 @@ uv run <skill_dir>/scripts/vault.py init --vault-path <VAULT_PATH>
 
 **错误做法**：用户说"写一篇 Rust 入门教程"，你把它扩展成"创建一篇 Personal Project 类型的笔记，文件名为 'Rust 入门学习计划.md'，内容包含：学习目标、前置知识、第一周计划……"——这是严格禁止的。
 
-### 4. 派生子代理
+### 3. 派生子代理
 
 使用 `sessions_spawn` 或 Task 工具派生子代理，将下面的「子代理任务模板」作为指令传递。然后等待子代理完成，向用户汇报结果。
 
